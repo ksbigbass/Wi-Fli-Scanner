@@ -1,0 +1,47 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wi-Fi Network Scanner</title>
+</head>
+<body>
+    <h1>Wi-Fi Networks</h1>
+    <div id="result"></div>
+    <div id="lastUpdate"></div>
+    <script>
+        async function fetchWifiData() {
+            try {
+                const response = await fetch('/api/wifi-data');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('result').textContent = `Error: ${data.error}`;
+                    return;
+                }
+                
+                // Client-side processing
+                const networkList = data.wifi_networks.map(network => 
+                    `<li>SSID: ${network.ssid}, Signal: ${network.signal}%, Security: ${network.security}</li>`
+                ).join('');
+                
+                document.getElementById('result').innerHTML = `
+                    <p>Found ${data.wifi_networks.length} networks:</p>
+                    <ul>${networkList}</ul>
+                `;
+
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+            } catch (error) {
+                console.error('Error fetching Wi-Fi data:', error);
+                document.getElementById('result').textContent = 'Error fetching Wi-Fi data. Check console for details.';
+            }
+        }
+        
+        // Initial fetch
+        fetchWifiData();
+
+        // Set up interval to fetch data every 10 seconds
+        setInterval(fetchWifiData, 10000);
+    </script>
+</body>
+</html>

@@ -1,3 +1,0 @@
-# sniffing-service/requirements.txt
-scapy==2.5.0
-paho-mqtt==1.5.1
