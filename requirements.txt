@@ -10,4 +10,6 @@ seaborn==0.12.3
 tensorflow==2.14.0
 keras==2.14.0
 torch==2.2.0
-torchvision==0.15.2         
+torchvision==0.15.2      
+from flask_cors import CORS
+flask-cors==4.1.2
