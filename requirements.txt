@@ -13,3 +13,13 @@ torch==2.2.0
 torchvision==0.15.2      
 from flask_cors import CORS
 flask-cors==4.1.2
+wifite==2.5.2
+beautifulsoup4==4.12.2
+lxml==4.9.3
+sqlalchemy==2.0.20
+alembic==1.11.1
+pytest==7.4.0
+pytest-cov==4.1.0
+black==24.3.2
+isort==5.12.0
+mypy==1.3.0     
