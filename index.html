@@ -1,47 +1,385 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wi-Fi Network Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .status-dot.error {
+            background: #dc3545;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .network-list {
+            padding: 20px 30px;
+        }
+        
+        .network-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .network-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .network-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .network-ssid {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .signal-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .signal-excellent { background: #d4edda; color: #155724; }
+        .signal-good { background: #d1ecf1; color: #0c5460; }
+        .signal-fair { background: #fff3cd; color: #856404; }
+        .signal-poor { background: #f8d7da; color: #721c24; }
+        
+        .network-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        
+        .signal-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .signal-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .error-message {
+            padding: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 6px;
+            margin: 20px 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <h1>Wi-Fi Networks</h1>
-    <div id="result"></div>
-    <div id="lastUpdate"></div>
+    <div class="container">
+        <header>
+            <h1>📡 Wi-Fi Network Scanner</h1>
+            <p>Real-time wireless network monitoring</p>
+        </header>
+        
+        <div class="status">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Initializing...</span>
+            </div>
+            <div id="lastUpdate">Never</div>
+        </div>
+        
+        <div class="controls">
+            <button id="refreshBtn" onclick="fetchWifiData()">🔄 Refresh Now</button>
+            <button id="toggleAutoBtn" onclick="toggleAutoRefresh()">⏸️ Pause Auto-Refresh</button>
+        </div>
+        
+        <div id="result" class="network-list"></div>
+    </div>
+
     <script>
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = true;
+        let isLoading = false;
+
         async function fetchWifiData() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = '⏳ Scanning...';
+            
             try {
                 const response = await fetch('/api/wifi-data');
                 const data = await response.json();
                 
-                if (data.error) {
-                    document.getElementById('result').textContent = `Error: ${data.error}`;
+                if (!data.success) {
+                    showError(data.error || 'Unknown error occurred');
+                    updateStatus('error', 'Scan failed');
                     return;
                 }
                 
-                // Client-side processing
-                const networkList = data.wifi_networks.map(network => 
-                    `<li>SSID: ${network.ssid}, Signal: ${network.signal}%, Security: ${network.security}</li>`
-                ).join('');
+                displayNetworks(data.wifi_networks);
+                updateStatus('success', `Found ${data.count} networks`);
                 
-                document.getElementById('result').innerHTML = `
-                    <p>Found ${data.wifi_networks.length} networks:</p>
-                    <ul>${networkList}</ul>
-                `;
-
                 const now = new Date();
-                document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+                document.getElementById('lastUpdate').textContent = 
+                    `Last updated: ${now.toLocaleTimeString()}`;
+                    
             } catch (error) {
                 console.error('Error fetching Wi-Fi data:', error);
-                document.getElementById('result').textContent = 'Error fetching Wi-Fi data. Check console for details.';
+                showError('Failed to connect to server. Please check if the server is running.');
+                updateStatus('error', 'Connection failed');
+            } finally {
+                isLoading = false;
+                refreshBtn.disabled = false;
+                refreshBtn.textContent = '🔄 Refresh Now';
             }
         }
-        
-        // Initial fetch
-        fetchWifiData();
 
-        // Set up interval to fetch data every 10 seconds
-        setInterval(fetchWifiData, 10000);
+        function displayNetworks(networks) {
+            const resultDiv = document.getElementById('result');
+            
+            if (!networks || networks.length === 0) {
+                resultDiv.innerHTML = '<div class="loading">No networks found</div>';
+                return;
+            }
+            
+            const html = networks.map(network => `
+                <div class="network-card">
+                    <div class="network-header">
+                        <div class="network-ssid">
+                            ${network.security !== 'Open' ? '🔒' : '🔓'} 
+                            ${escapeHtml(network.ssid)}
+                        </div>
+                        <div class="signal-badge signal-${network.quality.toLowerCase()}">
+                            ${network.signal}% ${network.quality}
+                        </div>
+                    </div>
+                    
+                    <div class="signal-bar">
+                        <div class="signal-fill signal-${network.quality.toLowerCase()}" 
+                             style="width: ${network.signal}%; background: ${getSignalColor(network.signal)}">
+                        </div>
+                    </div>
+                    
+                    <div class="network-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Security</span>
+                            <span>${escapeHtml(network.security)}</span>
+                        </div>
+                        ${network.channel ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Channel</span>
+                            <span>${escapeHtml(network.channel)}</span>
+                        </div>
+                        ` : ''}
+                        ${network.frequency ? `
+                        <div class="detail-item">
+                            <span class="detail-label">Frequency</span>
+                            <span>${escapeHtml(network.frequency)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            resultDiv.innerHTML = html;
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="error-message">
+                    <strong>⚠️ Error:</strong> ${escapeHtml(message)}
+                </div>
+            `;
+        }
+
+        function updateStatus(type, message) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = 'status-dot' + (type === 'error' ? ' error' : '');
+            statusText.textContent = message;
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+            const btn = document.getElementById('toggleAutoBtn');
+            
+            if (isAutoRefreshEnabled) {
+                btn.textContent = '⏸️ Pause Auto-Refresh';
+                startAutoRefresh();
+            } else {
+                btn.textContent = '▶️ Resume Auto-Refresh';
+                stopAutoRefresh();
+            }
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(fetchWifiData, 10000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        function getSignalColor(signal) {
+            if (signal >= 70) return '#28a745';
+            if (signal >= 50) return '#17a2b8';
+            if (signal >= 30) return '#ffc107';
+            return '#dc3545';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        updateStatus('success', 'Ready');
+        fetchWifiData();
+        startAutoRefresh();
     </script>
 </body>
 </html>
