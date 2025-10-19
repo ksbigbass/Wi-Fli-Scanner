@@ -1,25 +1,13 @@
-## Wi-Fi Scanner
+## Wi-Fi Network Scanner
 
-Because sometimes you need to know if your neighbor's "FBI Surveillance Van" network is real or just very committed to the bit.
+Lightweight network scanner designed for Raspberry Pi and IoT devices. Provides a web-based dashboard for monitoring nearby Wi-Fi networks in real-time.
 
-A real-time Wi-Fi network scanner with a web interface that shows you every network your device can see. Updates every 10 seconds so you can watch your signal strength deteriorate as you walk to the basement.
+**Ideal for:**
+- Raspberry Pi network monitoring projects
+- Site surveys and signal mapping
+- Home network diagnostics
+- Educational networking projects
 
-**What it does:**
-- Scans for nearby Wi-Fi networks
-- Shows signal strength (so you know who to blame for slow internet)
-- Displays security types (WPA2, WPA3, or "please hack me")
-- Auto-refreshes because manually clicking refresh is so 2010
-- Runs on a simple Python server (no bloated frameworks)
+**Features**: Real-time scanning, signal strength monitoring, security detection, auto-refresh, minimal resource usage
 
-**Perfect for:**
-- Finding the best spot for your router
-- Seeing how many networks named "Pretty fly for a wifi" exist
-- Network troubleshooting
-- Raspberry Pi projects
-
-**Tech**: Python, nmcli, vanilla JS
-```
-
-## Minimal Security-Focused
-```
-Wi-Fi network scanner for Linux. Real-time monitoring of nearby networks with signal strength and security protocol detection. Built with Python and nmcli.
+**Platform**: Linux/Raspberry Pi OS with NetworkManager
